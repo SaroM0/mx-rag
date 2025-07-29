@@ -57,3 +57,16 @@ log/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+
+# CDK and TypeScript
+infra/node_modules/
+infra/dist/
+infra/cdk.out/
+infra/.cdk.staging/
+infra/coverage/
+infra/npm-debug.log*
+infra/yarn-debug.log*
+infra/yarn-error.log*
+infra/.env*.local
+infra/tsconfig.tsbuildinfo
+infra/.DS_Store

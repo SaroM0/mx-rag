@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.app.routers import chat, ingest
+from src.app.routers import chat, ingest, summary
 
 app = FastAPI(
     title="MX RAG API",
@@ -21,6 +21,7 @@ app.add_middleware(
 # Register routers
 app.include_router(chat.router)
 app.include_router(ingest.router)
+app.include_router(summary.router)
 
 
 @app.get("/health")

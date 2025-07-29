@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     openai_retry_min_seconds: int = 4
     openai_retry_max_seconds: int = 20
 
+    # Cost Configuration
+    model_input_cost_per_token: float = 0.15 / 1000  # $0.15 per 1K tokens
+    model_output_cost_per_token: float = 0.60 / 1000  # $0.60 per 1K tokens
+    model_cached_input_cost_per_token: float = 0.075 / 1000  # $0.075 per 1K tokens
+
     # Vector Store Configuration
     vectorstore_persist_directory: str = "src/data/chroma"
     vectorstore_collection_name: Optional[str] = None

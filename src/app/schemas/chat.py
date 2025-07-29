@@ -3,6 +3,19 @@ from typing import Any, Dict, List, Tuple
 from pydantic import BaseModel, Field
 
 
+class CostInfo(BaseModel):
+    """
+    Cost information for model usage.
+    """
+
+    input_tokens: int = Field(..., description="Number of input tokens processed")
+    output_tokens: int = Field(..., description="Number of output tokens generated")
+    total_tokens: int = Field(..., description="Total tokens used")
+    input_cost: float = Field(..., description="Cost for input tokens in USD")
+    output_cost: float = Field(..., description="Cost for output tokens in USD")
+    total_cost: float = Field(..., description="Total cost in USD")
+
+
 class ChatRequest(BaseModel):
     """
     Chat request schema.
@@ -38,4 +51,28 @@ class ChatResponse(BaseModel):
     sources: List[SourceDocument] = Field(
         ...,
         description="List of source documents used to generate the answer",
+    )
+    processing_time: float = Field(
+        ...,
+        description="Time taken to process the request in seconds",
+    )
+    cost_info: CostInfo = Field(
+        ...,
+        description="Cost information for this request",
+    )
+
+
+class RawChatResponse(BaseModel):
+    """
+    Raw chat response schema without RAG sources.
+    """
+
+    answer: str = Field(..., description="The generated answer")
+    processing_time: float = Field(
+        ...,
+        description="Time taken to process the request in seconds",
+    )
+    cost_info: CostInfo = Field(
+        ...,
+        description="Cost information for this request",
     )

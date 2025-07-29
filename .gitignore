@@ -21,47 +21,39 @@ wheels/
 *.egg
 
 # Virtual Environment
-venv/
-env/
-ENV/
 .env
 .venv
-.python-version
+env/
+venv/
+ENV/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
-.vs/
-
-# Testing
-.coverage
-htmlcov/
-.tox/
-.nox/
-.pytest_cache/
-coverage.xml
-*.cover
-.hypothesis/
 
 # Project specific
-data/chunks/*
-!data/chunks/.gitkeep
-pdfs/*
-!pdfs/.gitkeep
-logs/
-*.log
-.env.local
-.env.*.local
+src/data/chroma/
+src/data/chunks/
+src/pdfs/*
+!src/pdfs/.gitkeep
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
 
 # Docker
 .docker/
 docker-compose.override.yml
 
-# Misc
-*.bak
-*.tmp
-*.temp
+# Logs
+*.log
+logs/
+log/
+
+# Cache
 .cache/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

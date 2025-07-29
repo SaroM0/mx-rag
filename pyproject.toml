@@ -3,21 +3,26 @@ name = "mx-rag"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "SaroM0",email = "s.rodriguezm2@uniandes.edu.co"}
+    {name = "SaroM0",email = "rodriguezmorasantiago@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<4.0"
 dependencies = [
-    "fastapi (>=0.116.1,<0.117.0)",
-    "uvicorn[standard] (>=0.35.0,<0.36.0)",
-    "pymupdf (>=1.26.3,<2.0.0)",
-    "openai (>=1.97.1,<2.0.0)",
-    "langchain (>=0.3.27,<0.4.0)",
-    "chromadb (>=1.0.15,<2.0.0)",
-    "python-dotenv (>=1.1.1,<2.0.0)",
-    "pytest (>=8.4.1,<9.0.0)"
+    "fastapi>=0.116.1,<0.117.0",
+    "uvicorn[standard]>=0.35.0,<0.36.0",
+    "pymupdf>=1.26.3,<2.0.0",
+    "openai>=1.97.1,<2.0.0",
+    "langchain>=0.3.27,<0.4.0",
+    "chromadb>=0.4.22,<0.5.0",
+    "python-dotenv>=1.1.1,<2.0.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "pydantic-settings>=2.0.0,<3.0.0",
+    "tiktoken>=0.5.0,<0.6.0",
+    "numpy>=1.24.0,<2.0.0"
 ]
 
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.4.1,<9.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

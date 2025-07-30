@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Optional
 
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
     """
 
     # OpenAI Configuration
-    openai_api_key: str
+    openai_api_key: str = Field(..., min_length=1)
     openai_model: str = "text-embedding-3-large"
     openai_dimensions: int = 1536
     openai_chunk_size: int = 1000
@@ -41,15 +42,22 @@ class Settings(BaseSettings):
 
     # Chat Configuration
     chat_model_name: str = "gpt-4"
-    chat_temperature: float = 0.0
-    chat_max_tokens: int = 2000
-    chat_top_k: int = 3
+    chat_temperature: float = Field(0.0, ge=0.0, le=1.0)
+    chat_max_tokens: int = Field(2000, gt=0)
+    chat_top_k: int = Field(3, gt=0)
     chat_return_source_docs: bool = True
     chat_streaming: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
     )
+
+    @field_validator("openai_api_key")
+    @classmethod
+    def validate_openai_api_key(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("openai_api_key cannot be empty")
+        return v
 
 
 @lru_cache()

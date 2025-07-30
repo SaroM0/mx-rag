@@ -21,18 +21,18 @@ install:
 	pip install -r requirements.txt
 
 dev-install:
-	pip install pytest pytest-asyncio pytest-cov httpx black flake8
+	pip install -r requirements-dev.txt
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.pyd" -delete
-	find . -type f -name ".coverage" -delete
-	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	find . -type d -name "*.egg" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".coverage" -exec rm -rf {} +
+	sudo find . -type d -name "__pycache__" -exec rm -rf {} +
+	sudo find . -type f -name "*.pyc" -delete
+	sudo find . -type f -name "*.pyo" -delete
+	sudo find . -type f -name "*.pyd" -delete
+	sudo find . -type f -name ".coverage" -delete
+	sudo find . -type d -name "*.egg-info" -exec rm -rf {} +
+	sudo find . -type d -name "*.egg" -exec rm -rf {} +
+	sudo find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	sudo find . -type d -name ".coverage" -exec rm -rf {} +
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .eggs/

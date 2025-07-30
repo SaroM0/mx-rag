@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage
@@ -59,10 +59,14 @@ async def test_process_chat(mock_openai, mock_vectordb):
 
     # Mock LLM response
     mock_llm = AsyncMock()
-    mock_llm.ainvoke.return_value = Mock(content="RAG is a technique...")
+    mock_llm.ainvoke.return_value = AsyncMock(
+        choices=[{"message": {"content": "RAG is a technique..."}}]
+    )
 
     with patch("src.app.services.chat_service.get_chat_llm", return_value=mock_llm):
+        print("\nMock LLM response:", mock_llm.ainvoke.return_value)
         response = await process_chat(request)
+        print("Process chat response:", response)
 
         assert isinstance(response, ChatResponse)
         assert response.answer == "RAG is a technique..."
@@ -80,10 +84,14 @@ async def test_process_raw_chat(mock_openai):
 
     # Mock LLM response
     mock_llm = AsyncMock()
-    mock_llm.ainvoke.return_value = Mock(content="RAG is a technique...")
+    mock_llm.ainvoke.return_value = AsyncMock(
+        choices=[{"message": {"content": "RAG is a technique..."}}]
+    )
 
     with patch("src.app.services.chat_service.get_chat_llm", return_value=mock_llm):
+        print("\nMock LLM response:", mock_llm.ainvoke.return_value)
         response = await process_raw_chat(request)
+        print("Process raw chat response:", response)
 
         assert isinstance(response, RawChatResponse)
         assert response.answer == "RAG is a technique..."

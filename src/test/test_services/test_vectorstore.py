@@ -17,7 +17,7 @@ def mock_embeddings():
 
 def test_get_embeddings():
     """Test getting OpenAI embeddings"""
-    with patch("openai.AsyncOpenAI") as mock_openai:
+    with patch("openai.AsyncOpenAI"):
         embeddings = get_embeddings()
         assert embeddings is not None
 

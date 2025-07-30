@@ -145,7 +145,7 @@ curl -X POST http://localhost:8000/summary \
 |----------|-------------|---------|
 | OPENAI_API_KEY | Your OpenAI API key | Required |
 | OPENAI_MODEL | Embedding model | text-embedding-3-large |
-| CHAT_MODEL_NAME | Chat model | gpt-4 |
+| CHAT_MODEL_NAME | Chat model | gpt-4o-mini-2024-07-18 |
 | VECTORSTORE_PERSIST_DIRECTORY | ChromaDB storage location | src/data/chroma |
 | PDF_DIRECTORY | PDF files location | src/pdfs |
 | CHUNK_SIZE | Document chunk size | 512 |
@@ -170,6 +170,27 @@ mx-rag/
 │   ├── ingestion/      # PDF processing
 │   └── pdfs/           # Source PDFs
 ```
+
+## Make Commands
+
+The project includes several Make commands to streamline development and deployment:
+
+| Command | Description |
+|---------|-------------|
+| `make help` | Show available commands |
+| `make install` | Install production dependencies |
+| `make dev-install` | Install development dependencies |
+| `make clean` | Clean up Python cache files and virtual environment |
+| `make test` | Run tests |
+| `make test-cov` | Run tests with coverage report |
+| `make lint` | Run linting checks |
+| `make format` | Format code using black |
+| `make run` | Run the FastAPI application locally |
+| `make docker-build` | Build Docker image |
+| `make docker-run` | Run application in Docker |
+| `make docker-stop` | Stop Docker containers |
+| `make setup-env` | Create .env file from example |
+| `make aws-deploy` | Deploy to AWS using CDK |
 
 ## Documentation
 

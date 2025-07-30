@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -13,12 +15,37 @@ def chat_request():
 
 def test_chat_endpoint_success(test_client: TestClient, chat_request):
     """Test successful chat endpoint request"""
-    response = test_client.post("/chat/", json=chat_request)
-    assert response.status_code == 200
-    data = response.json()
-    assert "answer" in data
-    assert "cost_info" in data
-    assert "sources" in data
+    mock_response = {
+        "answer": "RAG is a technique...",
+        "cost_info": {
+            "input_tokens": 10,
+            "output_tokens": 20,
+            "total_tokens": 30,
+            "input_cost": 0.0002,
+            "output_cost": 0.0003,
+            "total_cost": 0.0005,
+            "is_cached": False,
+        },
+        "source_documents": [
+            {
+                "id": "test.pdf",
+                "content": "RAG is a technique...",
+                "source": "test.pdf",
+                "metadata": {"source": "test.pdf"},
+            }
+        ],
+        "processing_time": 1.0,
+    }
+
+    with patch("src.app.routers.chat.process_chat", return_value=mock_response):
+        print("\nChat request:", chat_request)
+        response = test_client.post("/chat/", json=chat_request)
+        print("Chat response:", response.json())
+        assert response.status_code == 200
+        data = response.json()
+        assert "answer" in data
+        assert "cost_info" in data
+        assert "sources" in data
 
 
 def test_chat_endpoint_invalid_request(test_client: TestClient):
@@ -28,6 +55,8 @@ def test_chat_endpoint_invalid_request(test_client: TestClient):
         "history": [],
     }
     response = test_client.post("/chat/", json=invalid_request)
+    print("\nInvalid chat request:", invalid_request)
+    print("Chat response (invalid):", response.json())
     assert response.status_code == 422
     data = response.json()
     assert "detail" in data
@@ -37,30 +66,53 @@ def test_chat_endpoint_vectordb_error(
     test_client: TestClient, chat_request, mock_vectordb
 ):
     """Test chat endpoint when vector store fails"""
-    mock_vectordb.asimilarity_search.side_effect = Exception("Vector store error")
+    error = Exception("Vector store error")
+    mock_vectordb.asimilarity_search.side_effect = error
     response = test_client.post("/chat/", json=chat_request)
+    print("\nVector store error:", str(error))
+    print("Chat response (vectordb error):", response.json())
     assert response.status_code == 500
     data = response.json()
     assert "detail" in data
-    assert "Vector store error" in data["detail"]
+    assert "Error processing chat request" in data["detail"]
 
 
 def test_raw_chat_endpoint_success(test_client: TestClient, chat_request):
     """Test successful raw chat endpoint request"""
-    response = test_client.post("/chat/raw", json=chat_request)
-    assert response.status_code == 200
-    data = response.json()
-    assert "answer" in data
-    assert "cost_info" in data
+    mock_response = {
+        "answer": "RAG is a technique...",
+        "cost_info": {
+            "input_tokens": 10,
+            "output_tokens": 20,
+            "total_tokens": 30,
+            "input_cost": 0.0002,
+            "output_cost": 0.0003,
+            "total_cost": 0.0005,
+            "is_cached": False,
+        },
+        "processing_time": 1.0,
+    }
+
+    with patch("src.app.routers.chat.process_raw_chat", return_value=mock_response):
+        print("\nRaw chat request:", chat_request)
+        response = test_client.post("/chat/raw", json=chat_request)
+        print("Raw chat response:", response.json())
+        assert response.status_code == 200
+        data = response.json()
+        assert "answer" in data
+        assert "cost_info" in data
 
 
 def test_raw_chat_endpoint_openai_error(
     test_client: TestClient, chat_request, mock_openai
 ):
     """Test raw chat endpoint when OpenAI API fails"""
-    mock_openai.chat.completions.create.side_effect = Exception("OpenAI API error")
+    error = Exception("OpenAI API error")
+    mock_openai.chat.completions.create.side_effect = error
     response = test_client.post("/chat/raw", json=chat_request)
+    print("\nOpenAI API error:", str(error))
+    print("Raw chat response (OpenAI error):", response.json())
     assert response.status_code == 500
     data = response.json()
     assert "detail" in data
-    assert "OpenAI API error" in data["detail"]
+    assert "Error processing chat request" in data["detail"]

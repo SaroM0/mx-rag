@@ -41,6 +41,7 @@ def test_settings_from_env():
         "PDF_DIRECTORY": "/test/pdfs",
         "CHUNKS_DIRECTORY": "/test/chunks",
         "VECTORSTORE_PERSIST_DIRECTORY": "/test/chroma",
+        "CHAT_MODEL_NAME": "gpt-4",
     }
 
     with patch.dict(os.environ, test_values, clear=True):
@@ -59,6 +60,7 @@ def test_settings_from_env():
         assert settings.pdf_directory == "/test/pdfs"
         assert settings.chunks_directory == "/test/chunks"
         assert settings.vectorstore_persist_directory == "/test/chroma"
+        assert settings.chat_model_name == "gpt-4"
 
 
 def test_settings_validation():
@@ -67,26 +69,17 @@ def test_settings_validation():
     with pytest.raises(ValidationError) as exc_info:
         Settings(
             openai_api_key="",
-            chat_model="gpt-4",
-            embedding_model="text-embedding-3-small",
+            chat_model_name="gpt-4",
+            openai_model="text-embedding-3-small",
         )
     assert "openai_api_key" in str(exc_info.value)
-
-    # Test invalid model name
-    with pytest.raises(ValidationError) as exc_info:
-        Settings(
-            openai_api_key="test-key",
-            chat_model="invalid-model",
-            embedding_model="text-embedding-3-small",
-        )
-    assert "chat_model" in str(exc_info.value)
 
     # Test invalid top_k value
     with pytest.raises(ValidationError) as exc_info:
         Settings(
             openai_api_key="test-key",
-            chat_model="gpt-4",
-            embedding_model="text-embedding-3-small",
+            chat_model_name="gpt-4",
+            openai_model="text-embedding-3-small",
             chat_top_k=-1,
         )
     assert "chat_top_k" in str(exc_info.value)

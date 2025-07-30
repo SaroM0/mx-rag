@@ -1,12 +1,12 @@
 import time
+import traceback
 
 from fastapi import APIRouter, HTTPException
 
 from src.app.core.config import get_settings
-from src.app.llm.summary_chain import create_summary_chain
 from src.app.schemas.chat import ChatRequest
 from src.app.schemas.summary import SummaryResponse
-from src.app.services.chat_service import calculate_cost_info
+from src.app.services.chat_service import calculate_cost_info, get_chat_llm
 from src.app.utils.history_utils import convert_history_to_messages
 
 router = APIRouter(tags=["summary"])
@@ -30,11 +30,30 @@ async def generate_summary(request: ChatRequest):
             raise HTTPException(status_code=422, detail="Invalid chat history format")
 
         # Create and run the chain
-        chain = create_summary_chain(settings)
+        print("\nget_chat_llm:", get_chat_llm)
+        llm = get_chat_llm()
         try:
-            summary = await chain.ainvoke({"messages": messages})
+            print("\nRunning chain with messages:", messages)
+            print("LLM type:", type(llm))
+            print("LLM dir:", dir(llm))
+            print("LLM ainvoke type:", type(llm.ainvoke))
+            print("Messages type:", type(messages))
+            print("Messages content:", messages)
+            response = await llm.ainvoke(messages)
+            print("Chain response:", response)
+            print("Chain response type:", type(response))
+            print("Chain response dir:", dir(response))
+            summary = response.content
+            print("Summary:", summary)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
+            print("Chain error:", str(e))
+            print("Chain error type:", type(e))
+            print("Chain error dir:", dir(e))
+            print("Chain error traceback:")
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=500, detail=f"Error generating summary: {str(e)}"
+            )
 
         # Calculate processing time and costs
         processing_time = time.time() - start_time
@@ -50,6 +69,11 @@ async def generate_summary(request: ChatRequest):
     except HTTPException:
         raise
     except Exception as e:
+        print("Router error:", str(e))
+        print("Router error type:", type(e))
+        print("Router error dir:", dir(e))
+        print("Router error traceback:")
+        traceback.print_exc()
         raise HTTPException(
             status_code=500, detail=f"Error generating summary: {str(e)}"
         )

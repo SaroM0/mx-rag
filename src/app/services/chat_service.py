@@ -161,7 +161,7 @@ async def process_chat(payload: ChatRequest) -> ChatResponse:
         processing_time = time.time() - start_time
         cost_info = calculate_cost_info(
             input_text=str(messages),
-            output_text=response.content,
+            output_text=response.choices[0]["message"]["content"],
         )
 
         # Format source documents
@@ -178,7 +178,7 @@ async def process_chat(payload: ChatRequest) -> ChatResponse:
                 )
 
         return ChatResponse(
-            answer=response.content,
+            answer=response.choices[0]["message"]["content"],
             source_documents=source_docs,
             processing_time=processing_time,
             cost_info=cost_info,
@@ -213,11 +213,11 @@ async def process_raw_chat(payload: ChatRequest) -> RawChatResponse:
         processing_time = time.time() - start_time
         cost_info = calculate_cost_info(
             input_text=str(messages),
-            output_text=response.content,
+            output_text=response.choices[0]["message"]["content"],
         )
 
         return RawChatResponse(
-            answer=response.content,
+            answer=response.choices[0]["message"]["content"],
             processing_time=processing_time,
             cost_info=cost_info,
         )

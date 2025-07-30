@@ -17,7 +17,7 @@ async def ingest_pdfs():
                 status_code=404,
                 content={
                     "status": "error",
-                    "detail": "No PDF files found in the data directory",
+                    "detail": "No PDF files found",
                 },
             )
 
@@ -31,7 +31,7 @@ async def ingest_pdfs():
                 status_code=500,
                 content={
                     "status": "error",
-                    "detail": "Failed to process all PDF files",
+                    "detail": "Error during ingestion",
                     "results": results,
                 },
             )
@@ -47,11 +47,14 @@ async def ingest_pdfs():
             )
         else:
             # All successful
-            return {
-                "status": "success",
-                "message": "All files processed successfully",
-                "results": results,
-            }
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "status": "success",
+                    "message": "All files processed successfully",
+                    "results": results,
+                },
+            )
 
     except HTTPException:
         raise

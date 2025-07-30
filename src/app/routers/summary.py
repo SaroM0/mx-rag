@@ -1,71 +1,55 @@
 import time
 
-from fastapi import APIRouter
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from fastapi import APIRouter, HTTPException
 
 from src.app.core.config import get_settings
-from src.app.schemas.chat import ChatRequest, CostInfo
+from src.app.llm.summary_chain import create_summary_chain
+from src.app.schemas.chat import ChatRequest
 from src.app.schemas.summary import SummaryResponse
-from src.app.services.chat_service import get_chat_llm
+from src.app.services.chat_service import calculate_cost_info
+from src.app.utils.history_utils import convert_history_to_messages
 
-router = APIRouter(prefix="/summary", tags=["summary"])
-
-SUMMARY_PROMPT = """
-Given the following chat history between a user and an AI assistant:
-{chat_history}
-
-Generate a brief and concise summary (2-3 sentences) highlighting the key points and topics discussed.
-Focus on the main questions asked and solutions provided.
-"""
+router = APIRouter(tags=["summary"])
 
 
-@router.post("/", response_model=SummaryResponse)
-async def summarize_conversation(request: ChatRequest) -> SummaryResponse:
-    """
-    Generate a concise summary of the conversation history.
+@router.post("/summary", response_model=SummaryResponse)
+async def generate_summary(request: ChatRequest):
+    """Generate a summary of the conversation"""
+    if not request.history:
+        raise HTTPException(
+            status_code=422, detail="History cannot be empty for summary generation"
+        )
 
-    Args:
-        request: ChatRequest containing the conversation history
+    try:
+        start_time = time.time()
+        settings = get_settings()
 
-    Returns:
-        SummaryResponse containing the summary, processing time and cost information
-    """
-    start_time = time.time()
-    settings = get_settings()
+        # Convert history to messages
+        messages = convert_history_to_messages(request.history)
+        if not messages:
+            raise HTTPException(status_code=422, detail="Invalid chat history format")
 
-    # Initialize the summarization chain
-    prompt = PromptTemplate.from_template(SUMMARY_PROMPT)
-    summary_chain = LLMChain(llm=get_chat_llm(), prompt=prompt)
+        # Create and run the chain
+        chain = create_summary_chain(settings)
+        try:
+            summary = await chain.ainvoke({"messages": messages})
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
 
-    # Format chat history into a readable string
-    chat_history = "\n".join(
-        f"{'User' if i % 2 == 0 else 'Assistant'}: {msg}"
-        for i, msg in enumerate(request.history)
-    )
+        # Calculate processing time and costs
+        processing_time = time.time() - start_time
+        cost_info = calculate_cost_info(
+            input_text=str(messages),
+            output_text=summary,
+        )
 
-    # Generate summary
-    summary = await summary_chain.arun(chat_history=chat_history)
+        return SummaryResponse(
+            summary=summary, processing_time=processing_time, cost_info=cost_info
+        )
 
-    # Calculate processing time
-    processing_time = time.time() - start_time
-
-    # Calculate token usage and cost (simplified version)
-    # In a real implementation, you would get this from the LLM response
-    estimated_tokens = len(summary.split()) * 1.3  # rough estimate
-    input_tokens = int(estimated_tokens * 0.7)
-    output_tokens = int(estimated_tokens * 0.3)
-
-    cost_info = CostInfo(
-        input_tokens=input_tokens,
-        output_tokens=output_tokens,
-        total_tokens=input_tokens + output_tokens,
-        input_cost=input_tokens * settings.model_input_cost_per_token,
-        output_cost=output_tokens * settings.model_output_cost_per_token,
-        total_cost=(input_tokens * settings.model_input_cost_per_token)
-        + (output_tokens * settings.model_output_cost_per_token),
-    )
-
-    return SummaryResponse(
-        summary=summary.strip(), processing_time=processing_time, cost_info=cost_info
-    )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error generating summary: {str(e)}"
+        )

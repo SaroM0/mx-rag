@@ -171,6 +171,15 @@ mx-rag/
 │   └── pdfs/           # Source PDFs
 ```
 
+## Documentation
+
+The `docs/` directory contains comprehensive documentation about the project:
+
+- **Design Decisions**: Detailed explanation of architectural choices and technical decisions made during development
+- **Solution Overview**: In-depth explanation of how the RAG system works and its components
+- **Future Enhancements**: Planned improvements and potential feature additions
+- **Metrics and Results**: Performance metrics, accuracy measurements, and benchmark results
+
 ## AWS Deployment
 
 1. Install AWS CDK dependencies:

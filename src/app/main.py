@@ -3,13 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.app.routers import chat, ingest, summary
 
-app = FastAPI(
-    title="MX RAG API",
-    description="RAG API for document question answering",
-    version="0.1.0",
-)
+app = FastAPI(title="RAG API")
 
-# CORS configuration
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,7 +14,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers
+# Include routers
 app.include_router(chat.router)
 app.include_router(ingest.router)
 app.include_router(summary.router)
